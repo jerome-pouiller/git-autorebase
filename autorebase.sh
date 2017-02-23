@@ -14,7 +14,7 @@ die() {
 
 ACTION=$1
 ORIGIN=$(git rev-parse --short HEAD)
-COMMIT=$(git rev-parse --short $2)
+COMMIT=$(git rev-parse --short "$2")
 PARENT=$(git rev-parse --short $COMMIT^)
 [[ "$COMMIT" ]] || die "syntax: git autorebase ACTION COMMIT"
 git merge-base --is-ancestor $COMMIT $ORIGIN || die "$COMMIT is not an ancestor of HEAD"
