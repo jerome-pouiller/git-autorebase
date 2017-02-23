@@ -27,10 +27,12 @@ if [[ $ACTION == "drop" || $ACTION == "d" ]]; then
 elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
     GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $PARENT || exit 1
     git reset --soft HEAD^
+    git diff --stat --staged
     echo "Hints:"
-    echo "  Select files to be commited using 'git reset', 'git add' or 'git add -p'"
-    echo "  Commit using 'git commit -c $COMMIT'"
-    echo "  Finish with 'git rebase --continue'"
+    echo "  - Select files to be commited with 'git reset', 'git add' or"
+    echo "    'git add -p'"
+    echo "  - Commit using 'git commit -c $COMMIT'"
+    echo "  - Finish with 'git rebase --continue'"
 else
     GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" git rebase -i $PARENT
 fi
