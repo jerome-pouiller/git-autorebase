@@ -7,15 +7,20 @@
 #     - Jérôme Pouiller <jezz@sysmic.org>
 #
 
+die() {
+       echo $@
+       exit 1
+}
+
 ACTION=$1
 COMMIT=$(git rev-parse --short $2)
 PARENT=$(git rev-parse --short $COMMIT^)
-[[ "$COMMIT" ]] || exit 1
+[[ "$COMMIT" ]] || die "syntax: git autorebase ACTION COMMIT"
 CORRECT=
 for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
      [[ $ACTION == $A ]] && CORRECT=1
 done
-[[ "$CORRECT" ]] || exit 1
+[[ "$CORRECT" ]] || die "$ACTION is not a correct action"
 if [[ $ACTION == "drop" || $ACTION == "d" ]]; then
     GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase -i $PARENT
 elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
