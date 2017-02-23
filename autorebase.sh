@@ -13,10 +13,11 @@ die() {
 }
 
 ACTION=$1
+ORIGIN=$(git rev-parse --short HEAD)
 COMMIT=$(git rev-parse --short $2)
 PARENT=$(git rev-parse --short $COMMIT^)
 [[ "$COMMIT" ]] || die "syntax: git autorebase ACTION COMMIT"
-git merge-base --is-ancestor $COMMIT HEAD || die "$COMMIT is not an ancestor of HEAD"
+git merge-base --is-ancestor $COMMIT $ORIGIN || die "$COMMIT is not an ancestor of HEAD"
 CORRECT=
 for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
      [[ $ACTION == $A ]] && CORRECT=1
@@ -36,3 +37,5 @@ elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
 else
     GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" git rebase -i $PARENT
 fi
+echo "You can go back to your previous HEAD with:"
+echo "  git checkout $ORIGIN"
