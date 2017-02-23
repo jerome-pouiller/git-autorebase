@@ -9,9 +9,7 @@ for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
      [[ $ACTION == $A ]] && CORRECT=1
 done 
 [[ "$CORRECT" ]] || exit 1
-if [[ $ACTION == "drop" || $ACTION == "d" ]]; then
-    GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase -i $COMMIT^^
-elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
+if [[ $ACTION == "split" || $ACTION == "t" ]]; then
     GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $COMMIT^^ || exit 1
     git reset --soft HEAD^
     echo "Hints:"
