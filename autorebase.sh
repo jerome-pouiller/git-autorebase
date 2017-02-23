@@ -21,7 +21,7 @@ COMMIT=$(git rev-parse --short $*)
 PARENT=$(git rev-parse --short $COMMIT^)
 git merge-base --is-ancestor $COMMIT $ORIGIN || die "$COMMIT is not an ancestor of HEAD"
 CORRECT=
-for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
+for A in p pick r reword e edit s squash f fixup x exec d delete drop t split; do
      [[ $ACTION == $A ]] && CORRECT=1
 done
 [[ "$CORRECT" ]] || die "$ACTION is not a correct action"
