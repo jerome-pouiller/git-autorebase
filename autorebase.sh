@@ -12,20 +12,20 @@ die() {
        exit 1
 }
 
+[[ ${#*} -ge 2 ]] || die "syntax: git autorebase ACTION COMMIT"
 ACTION=$1
+shift
 ORIGIN=$(git rev-parse --short HEAD)
-COMMIT=$(git rev-parse --short $2)
+COMMIT=$(git rev-parse --short $*)
+[[ $COMMIT ]] || die "Invalid commit \"$*\""
 PARENT=$(git rev-parse --short $COMMIT^)
-[[ "$COMMIT" ]] || die "syntax: git autorebase ACTION COMMIT"
 git merge-base --is-ancestor $COMMIT $ORIGIN || die "$COMMIT is not an ancestor of HEAD"
 CORRECT=
-for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
+for A in p pick r reword e edit s squash f fixup x exec d delete drop t split; do
      [[ $ACTION == $A ]] && CORRECT=1
 done
 [[ "$CORRECT" ]] || die "$ACTION is not a correct action"
-if [[ $ACTION == "drop" || $ACTION == "d" ]]; then
-    GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase -i $PARENT
-elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
+if [[ $ACTION == "split" || $ACTION == "t" ]]; then
     GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $PARENT || exit 1
     git reset --soft HEAD^
     git diff --stat --staged
@@ -37,5 +37,3 @@ elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
 else
     GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" git rebase -i $PARENT
 fi
-echo "You can go back to your previous HEAD with:"
-echo "  git checkout $ORIGIN"
