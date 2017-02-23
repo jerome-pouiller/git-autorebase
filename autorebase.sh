@@ -16,17 +16,23 @@ die() {
 ACTION=$1
 shift
 ORIGIN=$(git rev-parse --short HEAD)
-COMMIT=$(git rev-parse --short $*)
+COMMIT=$(git rev-parse --short "$*")
 [[ $COMMIT ]] || die "Invalid commit \"$*\""
 PARENT=$(git rev-parse --short $COMMIT^)
-git merge-base --is-ancestor $COMMIT $ORIGIN || die "$COMMIT is not an ancestor of HEAD"
-CORRECT=
-for A in p pick r reword e edit s squash f fixup x exec d delete drop t split; do
-     [[ $ACTION == $A ]] && CORRECT=1
-done
-[[ "$CORRECT" ]] || die "$ACTION is not a correct action"
-if [[ $ACTION == "split" || $ACTION == "t" ]]; then
-    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $PARENT || exit 1
+if ! git merge-base --is-ancestor $COMMIT $ORIGIN
+then
+    die "$COMMIT is not an ancestor of HEAD"
+fi
+
+case $ACTION in
+d | delete | drop)
+    # Delete line (more general way to drop commit)
+    GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/{d;q}'" \
+        git rebase -i $PARENT
+    ;;
+t | split)
+    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" \
+        git rebase -i $PARENT || exit 1
     git reset --soft HEAD^
     git diff --stat --staged
     echo "Hints:"
@@ -34,6 +40,13 @@ if [[ $ACTION == "split" || $ACTION == "t" ]]; then
     echo "    'git add -p'"
     echo "  - Commit using 'git commit -c $COMMIT'"
     echo "  - Finish with 'git rebase --continue'"
-else
-    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" git rebase -i $PARENT
-fi
+    ;;
+p | pick   | r | reword | e | edit | \
+s | squash | f | fixup  | x | exec )
+    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" \
+        git rebase -i $PARENT
+    ;;
+*)
+    die "$ACTION is not a correct rebase -i action"
+    ;;
+esac
