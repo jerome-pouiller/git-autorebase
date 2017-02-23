@@ -25,9 +25,9 @@ for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
 done
 [[ "$CORRECT" ]] || die "$ACTION is not a correct action"
 if [[ $ACTION == "drop" || $ACTION == "d" ]]; then
-    GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase -i $PARENT
+    GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase --preserve-merges -i $PARENT
 elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
-    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $PARENT || exit 1
+    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase --preserve-merges -i $PARENT || exit 1
     git reset --soft HEAD^
     git diff --stat --staged
     echo "Hints:"
@@ -36,7 +36,7 @@ elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
     echo "  - Commit using 'git commit -c $COMMIT'"
     echo "  - Finish with 'git rebase --continue'"
 else
-    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" git rebase -i $PARENT
+    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" git rebase --preserve-merges -i $PARENT
 fi
 echo "You can go back to your previous HEAD with:"
 echo "  git checkout $ORIGIN"
