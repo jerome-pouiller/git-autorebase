@@ -32,5 +32,5 @@ elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
     echo "  Commit using 'git commit -c $COMMIT'"
     echo "  Finish with 'git rebase --continue'"
 else
-    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$1 $COMMIT/'" git rebase -i $PARENT
+    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$ACTION $COMMIT/'" git rebase -i $PARENT
 fi
