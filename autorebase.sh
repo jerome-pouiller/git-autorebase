@@ -1,4 +1,11 @@
 #!/bin/bash
+# vim: set sw=4 expandtab:
+#
+# Licence: GPLv2+
+# Created: 2013-10-09 10:08:24+01:00
+# Main authors:
+#     - Jérôme Pouiller <jezz@sysmic.org>
+#
 
 ACTION=$1
 COMMIT=$(git rev-parse --short $2)
