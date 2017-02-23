@@ -16,6 +16,7 @@ ACTION=$1
 COMMIT=$(git rev-parse --short $2)
 PARENT=$(git rev-parse --short $COMMIT^)
 [[ "$COMMIT" ]] || die "syntax: git autorebase ACTION COMMIT"
+git merge-base --is-ancestor $COMMIT HEAD || die "$COMMIT is not an ancestor of HEAD"
 CORRECT=
 for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
      [[ $ACTION == $A ]] && CORRECT=1
