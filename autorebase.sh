@@ -12,11 +12,13 @@ die() {
        exit 1
 }
 
+[[ $# -eq 2 ]] || die "syntax: git autorebase ACTION COMMIT"
 ACTION=$1
-ORIGIN=$(git rev-parse --short HEAD)
-COMMIT=$(git rev-parse --short "$2")
-PARENT=$(git rev-parse --short $COMMIT^)
-[[ "$COMMIT" ]] || die "syntax: git autorebase ACTION COMMIT"
+ORIGIN=$(git rev-parse --short HEAD 2> /dev/null)
+COMMIT=$(git rev-parse --short "$2" 2> /dev/null)
+PARENT=$(git rev-parse --short $COMMIT^ 2> /dev/null)
+[[ "$COMMIT" ]] || die "cannot resolve commit \"$2\""
+[[ "$ORIGIN" ]] || die "unknown error"
 [[ "$PARENT" ]] || PARENT=--root
 git merge-base --is-ancestor $COMMIT $ORIGIN || die "$COMMIT is not an ancestor of HEAD"
 CORRECT=
