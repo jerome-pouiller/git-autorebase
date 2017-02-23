@@ -9,6 +9,7 @@
 
 ACTION=$1
 COMMIT=$(git rev-parse --short $2)
+PARENT=$(git rev-parse --short $COMMIT^)
 [[ "$COMMIT" ]] || exit 1
 CORRECT=
 for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
@@ -16,14 +17,14 @@ for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
 done
 [[ "$CORRECT" ]] || exit 1
 if [[ $ACTION == "drop" || $ACTION == "d" ]]; then
-    GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase -i $COMMIT^^
+    GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase -i $PARENT
 elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
-    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $COMMIT^^ || exit 1
+    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $PARENT || exit 1
     git reset --soft HEAD^
     echo "Hints:"
     echo "  Select files to be commited using 'git reset', 'git add' or 'git add -p'"
     echo "  Commit using 'git commit -c $COMMIT'"
     echo "  Finish with 'git rebase --continue'"
 else
-    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$1 $COMMIT/'" git rebase -i $COMMIT^^
+    GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/$1 $COMMIT/'" git rebase -i $PARENT
 fi
