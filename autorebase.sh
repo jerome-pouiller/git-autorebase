@@ -4,11 +4,11 @@ ACTION=$1
 COMMIT=$(git rev-parse --short $2)
 [[ "$COMMIT" ]] || exit 1
 CORRECT=
-for A in p pick r reword e edit s squash f fixup x exec d delete t split; do
+for A in p pick r reword e edit s squash f fixup x exec d drop t split; do
      [[ $ACTION == $A ]] && CORRECT=1
 done
 [[ "$CORRECT" ]] || exit 1
-if [[ $ACTION == "delete" || $ACTION == "d" ]]; then
+if [[ $ACTION == "drop" || $ACTION == "d" ]]; then
     GIT_SEQUENCE_EDITOR="sed -i -e '/^pick $COMMIT/d'" git rebase -i $COMMIT^^
 elif [[ $ACTION == "split" || $ACTION == "t" ]]; then
     GIT_SEQUENCE_EDITOR="sed -i -e 's/^pick $COMMIT/edit $COMMIT/'" git rebase -i $COMMIT^^ || exit 1
